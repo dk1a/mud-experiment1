@@ -1,30 +1,40 @@
-import { GodID as SingletonID, TxQueue } from "@latticexyz/network";
+import { TxQueue } from "@latticexyz/network";
 import { World } from "@latticexyz/recs";
 import { SystemTypes } from "contracts/types/SystemTypes";
 import { useComponentValueStream } from "@latticexyz/std-client";
-import { components, singletonIndex } from ".";
+import { components } from ".";
+
+import { setupPhaser } from "./phaser";
 
 type Props = {
   world: World;
   systems: TxQueue<SystemTypes>;
   components: typeof components;
+  phaser: Awaited<ReturnType<typeof setupPhaser>>
 };
 
 export const App = ({ systems, components }: Props) => {
-  const counter = useComponentValueStream(components.Counter, singletonIndex);
+  const roster = useComponentValueStream(components.Roster);
+  const queue = useComponentValueStream(components.Queue);
+
+  
+
   return (
     <>
       <div>
-        Counter: <span>{counter?.value ?? "??"}</span>
+        Roster: <span>{roster?.value ?? "??"}</span>
+      </div>
+      <div>
+        queue: <span>{queue?.value ?? "??"}</span>
       </div>
       <button
         type="button"
         onClick={(event) => {
           event.preventDefault();
-          systems["system.Increment"].executeTyped(SingletonID);
+          systems["system.ArenaInit"].executeTyped();
         }}
       >
-        Increment
+        Join
       </button>
     </>
   );
