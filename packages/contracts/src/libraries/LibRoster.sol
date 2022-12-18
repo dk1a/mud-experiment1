@@ -15,48 +15,39 @@ library LibRoster {
     return RosterComponent(getAddressById(components, RosterComponentID));
   }
 
-  function getSize(
-    IUint256Component components,
-    uint256 arenaEntity
-  ) internal view returns (uint256) {
-    return _comp(components).itemSetSize(arenaEntity);
-  }
-
-  function getValue(
+  function getEntities(
     IUint256Component components,
     uint256 arenaEntity
   ) internal view returns (uint256[] memory) {
-    return _comp(components).getValue(arenaEntity);
+    return _comp(components).getEntitiesWithValue(arenaEntity);
   }
 
   function register(
     IUint256Component components,
     uint256 arenaEntity,
-    uint256 protoEntity
+    uint256 entity
   ) internal {
     RosterComponent rosterComp = _comp(components);
 
-    if (rosterComp.hasItem(arenaEntity, protoEntity)) {
+    if (rosterComp.has(entity)) {
       revert LibRoster__AlreadyRegistered();
     }
-    rosterComp.addItem(arenaEntity, protoEntity);
+    rosterComp.set(entity, arenaEntity);
   }
 
   function requireRegistered(
     IUint256Component components,
-    uint256 arenaEntity,
-    uint256 protoEntity
+    uint256 entity
   ) internal view {
-    if (!_comp(components).hasItem(arenaEntity, protoEntity)) {
+    if (!_comp(components).has(entity)) {
       revert LibRoster__NotRegistered();
     }
   }
 
-  function removeProtoEntity(
+  function removeEntity(
     IUint256Component components,
-    uint256 arenaEntity,
-    uint256 protoEntity
+    uint256 entity
   ) internal {
-    _comp(components).removeItem(arenaEntity, protoEntity);
+    _comp(components).remove(entity);
   }
 }

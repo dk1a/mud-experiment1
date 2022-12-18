@@ -17,11 +17,12 @@ library LibAttack {
 
   function strikeAtPosition(
     IUint256Component components,
+    uint256 arenaEntity,
     uint256 attackerEntity,
     Coord memory defenderPosition
   ) internal {
     // attack everything in given position
-    uint256[] memory defenderEntities = LibPosition.getEntitiesAtPosition(components, defenderPosition);
+    uint256[] memory defenderEntities = LibPosition.getEntitiesAtPosition(components, arenaEntity, defenderPosition);
     // this can lead to attacking nothing, if the position is empty
     for (uint256 i; i < defenderEntities.length; i++) {
       genericAttack(

@@ -1,4 +1,5 @@
 {
+  "root": true,
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint", "react", "react-hooks"],
   "extends": [
@@ -9,6 +10,17 @@
     "plugin:react-hooks/recommended"
   ],
   "rules": {
-    "react/react-in-jsx-scope": "off"
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "importNames": ["delay"],
+            "name": "rxjs",
+            "message": "Use delayTime from utils/rx instead."
+          }
+        ]
+      }
+    ]
   }
 }

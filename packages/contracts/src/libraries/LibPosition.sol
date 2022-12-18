@@ -6,7 +6,7 @@ import { IUint256Component } from "solecs/interfaces/IUint256Component.sol";
 import { getAddressById } from "solecs/utils.sol";
 import { LibUtils } from "std-contracts/libraries/LibUtils.sol";
 
-import { PositionComponent, ID as PositionComponentID, Coord } from "components/PositionComponent.sol";
+import { PositionComponent, ID as PositionComponentID, LayeredCoord, Coord } from "components/PositionComponent.sol";
 
 library LibPosition {
   error LibPosition__OverlapNotAllowed();
@@ -20,28 +20,31 @@ library LibPosition {
     IUint256Component components,
     uint256 entity
   ) internal view returns (Coord memory) {
-    return _comp(components).getValue(entity);
+    return _removeLayer(_comp(components).getValue(entity));
   }
 
   function isOccupied(
     IUint256Component components,
+    uint256 layer,
     Coord memory position
   ) internal view returns (bool) {
-    return getEntitiesAtPosition(components, position).length > 0;
+    return getEntitiesAtPosition(components, layer, position).length > 0;
   }
 
   function getEntitiesAtPosition(
     IUint256Component components,
+    uint256 layer,
     Coord memory position
   ) internal view returns (uint256[] memory) {
-    return _comp(components).getEntitiesWithValue(position);
+    return _comp(components).getEntitiesWithValue(_addLayer(position, layer));
   }
 
   function requireNotOccupied(
     IUint256Component components,
+    uint256 layer,
     Coord memory position
   ) internal view {
-    if (isOccupied(components, position)) {
+    if (isOccupied(components, layer, position)) {
       revert LibPosition__OverlapNotAllowed();
     }
   }
@@ -49,12 +52,14 @@ library LibPosition {
   function moveTo(
     IUint256Component components,
     uint256 entity,
-    Coord memory toPosition,
+    Coord memory _toPosition,
     int32 allowedDistance
   ) internal {
-    requireNotOccupied(components, toPosition);
+    LayeredCoord memory fromPosition = _comp(components).getValue(entity);
+    LayeredCoord memory toPosition = LayeredCoord(_toPosition.x, _toPosition.y, fromPosition.layer);
 
-    Coord memory fromPosition = getPosition(components, entity);
+    requireNotOccupied(components, fromPosition.layer, _toPosition);
+
     _requireAllowedDistance(fromPosition, toPosition, allowedDistance);
 
     _comp(components).set(entity, toPosition);
@@ -72,13 +77,26 @@ library LibPosition {
   }
 
   function _requireAllowedDistance(
-    Coord memory fromPosition,
-    Coord memory toPosition,
+    LayeredCoord memory fromPosition,
+    LayeredCoord memory toPosition,
     int32 allowedDistance
   ) internal pure {
-    int32 distance = LibUtils.manhattan(fromPosition, toPosition);
+    int32 distance = LibUtils.manhattan(_removeLayer(fromPosition), _removeLayer(toPosition));
     if (distance > allowedDistance) {
       revert LibPosition__DistanceNotAllowed();
     }
+  }
+
+  function _addLayer(
+    Coord memory coord,
+    uint256 layer
+  ) internal pure returns (LayeredCoord memory) {
+    return LayeredCoord(coord.x, coord.y, layer);
+  }
+
+  function _removeLayer(
+    LayeredCoord memory coord
+  ) internal pure returns (Coord memory) {
+    return Coord(coord.x, coord.y);
   }
 }
