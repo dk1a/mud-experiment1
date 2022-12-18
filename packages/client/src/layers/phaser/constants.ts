@@ -1,5 +1,5 @@
-export const TILE_WIDTH = 16;
-export const TILE_HEIGHT = 16;
+export const TILE_WIDTH = 13;
+export const TILE_HEIGHT = 13;
 
 export enum Scenes {
   Main = "Main",
@@ -7,27 +7,16 @@ export enum Scenes {
 
 export enum Maps {
   Main = "Main",
-  Pixel = "Pixel",
-  Tactic = "Tactic",
-  Strategic = "Strategic",
 }
 
 export enum Assets {
-  OverworldTileset = "OverworldTileset",
-  MountainTileset = "MountainTileset",
-  MainAtlas = "MainAtlas",
+  UrizenTileset = "UrizenTileset",
 }
 
 export enum Sprites {
   Wall,
   Hero,
-  Settlement,
-  Gold,
-  Inventory,
-  GoldShrine,
-  EmberCrown,
-  EscapePortal,
-  Donkey,
+  Enemy,
 }
 
 export enum Animations {}

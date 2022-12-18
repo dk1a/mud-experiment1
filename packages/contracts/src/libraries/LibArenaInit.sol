@@ -23,11 +23,10 @@ library LibArenaInit {
     uint256 gladiatorEntity,
     Coord memory position
   ) internal {
-    initEntity(
+    initPosition(components, arenaEntity, gladiatorEntity, position);
+    initStats(
       components,
-      arenaEntity,
       gladiatorEntity,
-      position,
       LibConfig.gladiatorInitHealth(),
       LibConfig.gladiatorInitEnergy(),
       LibConfig.gladiatorInitArmor(),
@@ -42,36 +41,16 @@ library LibArenaInit {
     Coord memory position
   ) internal {
     uint256 wallEntity = uint256(keccak256(abi.encode("wallEntity", block.timestamp, arenaEntity, wallIndex)));
-    // (128 is also practically infinite, and avoids weird overflow risks unlike 256)
-    initEntity(
-      components,
-      arenaEntity,
-      wallEntity,
-      position,
-      type(uint128).max, // health
-      0,                 // energy
-      type(uint128).max, // armor
-      0                  // damage
-    );
+    initPosition(components, arenaEntity, wallEntity, position);
   }
 
-  function initEntity(
+  function initPosition(
     IUint256Component components,
     uint256 arenaEntity,
     uint256 entity,
-    Coord memory position,
-
-    uint256 initHealth,
-    uint256 initEnergy,
-    uint256 initArmor,
-    uint256 initDamage
+    Coord memory position
   ) internal {
     PositionComponent positionComp = PositionComponent(getAddressById(components, PositionComponentID));
-    HealthComponent healthComp = HealthComponent(getAddressById(components, HealthComponentID));
-    EnergyComponent energyComp = EnergyComponent(getAddressById(components, EnergyComponentID));
-    EnergySpentComponent energySpentComp = EnergySpentComponent(getAddressById(components, EnergySpentComponentID));
-    ArmorComponent armorComp = ArmorComponent(getAddressById(components, ArmorComponentID));
-    DamageComponent damageComp = DamageComponent(getAddressById(components, DamageComponentID));
 
     LayeredCoord memory layeredPosition = LayeredCoord(position.x, position.y, arenaEntity);
 
@@ -86,9 +65,23 @@ library LibArenaInit {
 
     // place inside the arena
     positionComp.set(entity, layeredPosition);
+  }
+
+  function initStats(
+    IUint256Component components,
+    uint256 entity,
+    uint32 initHealth,
+    uint32 initEnergy,
+    uint32 initArmor,
+    uint32 initDamage
+  ) internal {
+    HealthComponent healthComp = HealthComponent(getAddressById(components, HealthComponentID));
+    EnergyComponent energyComp = EnergyComponent(getAddressById(components, EnergyComponentID));
+    EnergySpentComponent energySpentComp = EnergySpentComponent(getAddressById(components, EnergySpentComponentID));
+    ArmorComponent armorComp = ArmorComponent(getAddressById(components, ArmorComponentID));
+    DamageComponent damageComp = DamageComponent(getAddressById(components, DamageComponentID));
 
     // initialize
-    // TODO arena walls should maybe just be unattackable obstacles
     healthComp.set(entity, initHealth);
     energyComp.set(entity, initEnergy);
     energySpentComp.set(entity, 0);

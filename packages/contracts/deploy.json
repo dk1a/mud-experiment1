@@ -16,6 +16,7 @@
   "systems": [
     { "name": "ArenaInitSystem", "writeAccess": ["*"] },
     { "name": "MovementSystem", "writeAccess": ["*"] },
+    { "name": "UpgradeSystem", "writeAccess": ["*"] },
     { "name": "ComponentDevSystem", "writeAccess": ["*"] }
   ]
 }

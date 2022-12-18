@@ -15,6 +15,22 @@ import { LibPosition } from "libraries/LibPosition.sol";
 library LibAttack {
   error LibAttack__OutOfRange();
 
+  // whether the position has something to attack
+  function withAttackableTarget(
+    IUint256Component components,
+    uint256 arenaEntity,
+    Coord memory defenderPosition
+  ) internal view returns (bool) {
+    HealthComponent healthComp = HealthComponent(getAddressById(components, HealthComponentID));
+    uint256[] memory defenderEntities = LibPosition.getEntitiesAtPosition(components, arenaEntity, defenderPosition);
+    for (uint256 i; i < defenderEntities.length; i++) {
+      if (healthComp.has(defenderEntities[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function strikeAtPosition(
     IUint256Component components,
     uint256 arenaEntity,
@@ -61,14 +77,18 @@ library LibAttack {
     HealthComponent healthComp = HealthComponent(getAddressById(components, HealthComponentID));
     ArmorComponent armorComp = ArmorComponent(getAddressById(components, ArmorComponentID));
     DamageComponent damageComp = DamageComponent(getAddressById(components, DamageComponentID));
-    
-    uint256 defenderArmor = armorComp.getValue(defenderEntity);
-    uint256 attackerDamage = damageComp.getValue(attackerEntity);
-    uint256 defenderHealth = healthComp.getValue(defenderEntity);
+
+    uint32 defenderHealth = healthComp.getValue(defenderEntity);
+    uint32 defenderArmor = 0;
+    if (armorComp.has(defenderEntity)) {
+      defenderArmor = armorComp.getValue(defenderEntity);
+    }
+
+    uint32 attackerDamage = damageComp.getValue(attackerEntity);
 
     // deal damage
     if (attackerDamage > defenderArmor) {
-      uint256 adjustedDamage = attackerDamage - defenderArmor;
+      uint32 adjustedDamage = attackerDamage - defenderArmor;
       healthComp.set(
         defenderEntity,
         adjustedDamage > defenderHealth ? 0 : defenderHealth - adjustedDamage

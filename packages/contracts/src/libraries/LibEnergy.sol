@@ -14,25 +14,25 @@ library LibEnergy {
   error LibEnergy__AmountNotYetSpendable();
   error LibEnergy__AmountNotAvailable();
 
-  uint256 constant ALLOW_ENERGY_AMOUNT = 1000;
-  uint256 constant ALLOW_ENERGY_INTERVAL = 8;
+  uint32 constant ALLOW_ENERGY_AMOUNT = 1000;
+  uint32 constant ALLOW_ENERGY_INTERVAL = 8;
 
   function useEnergy(
     IUint256Component components,
     uint256 arenaEntity,
     uint256 entity,
-    uint256 energyAmount
+    uint32 energyAmount
   ) internal {
     EnergyComponent energyComp = EnergyComponent(getAddressById(components, EnergyComponentID));
     EnergySpentComponent energySpentComp = EnergySpentComponent(getAddressById(components, EnergySpentComponentID));
 
-    uint256 energyAvailable = energyComp.getValue(entity);
+    uint32 energyAvailable = energyComp.getValue(entity);
     if (energyAmount > energyAvailable) {
       revert LibEnergy__AmountNotAvailable();
     }
 
-    uint256 energySpendable = _energySpendableNow(components, arenaEntity);
-    uint256 energySpent = energySpentComp.getValue(entity);
+    uint32 energySpendable = _energySpendableNow(components, arenaEntity);
+    uint32 energySpent = energySpentComp.getValue(entity);
     if (energyAmount > energySpendable - energySpent) {
       revert LibEnergy__AmountNotYetSpendable();
     }
@@ -44,7 +44,7 @@ library LibEnergy {
   function _energySpendableNow(
     IUint256Component components,
     uint256 arenaEntity
-  ) internal view returns (uint256) {
+  ) internal view returns (uint32) {
     // get arena start time
     ArenaStartTimeComponent arenaStartTimeComp = ArenaStartTimeComponent(getAddressById(components, ArenaStartTimeComponentID));
     if (!arenaStartTimeComp.has(arenaEntity)) revert LibEnergy__ArenaNotInitialized();
@@ -53,6 +53,7 @@ library LibEnergy {
 
     // spendable energy is increased by `ALLOW_ENERGY_AMOUNT` every `ALLOW_ENERGY_INTERVAL` seconds
     uint256 intervals = (block.timestamp - arenaStartTime) / ALLOW_ENERGY_INTERVAL;
-    return intervals * ALLOW_ENERGY_AMOUNT;
+    if (intervals >= type(uint32).max / ALLOW_ENERGY_AMOUNT) return type(uint32).max;
+    return uint32(intervals) * ALLOW_ENERGY_AMOUNT;
   }
 }

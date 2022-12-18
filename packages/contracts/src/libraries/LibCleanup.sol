@@ -38,7 +38,7 @@ library LibCleanup {
 
       // increment winCount
       WinCountComponent winCountComp = WinCountComponent(getAddressById(components, WinCountComponentID));
-      uint256 winCount;
+      uint32 winCount;
       if (winCountComp.has(protoEntity)) {
         winCount = winCountComp.getValue(protoEntity);
       }

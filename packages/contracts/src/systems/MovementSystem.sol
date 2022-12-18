@@ -45,8 +45,9 @@ contract MovementSystem is System {
 
       // move to new position (reverts if unable to)
       LibPosition.moveTo(components, entity, toPosition, LibConfig.moveDistance());
-    // if occupied, attack!
-    } else {
+
+    // if occupied, try to attack!
+    } else if (LibAttack.withAttackableTarget(components, arenaEntity, toPosition)) {
       // subtract energy cost (reverts if unable to)
       LibEnergy.useEnergy(
         components,
@@ -57,6 +58,10 @@ contract MovementSystem is System {
 
       // attack whatever is there
       LibAttack.strikeAtPosition(components, arenaEntity, entity, toPosition);
+
+    // if can't move and there's nothing to attack, do nothing
+    } else {
+      return '';
     }
 
     // cleanup (removes killed entities, declares winner if match is over)

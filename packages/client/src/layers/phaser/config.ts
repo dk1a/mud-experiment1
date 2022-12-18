@@ -6,34 +6,22 @@ import {
   defineCameraConfig,
 } from "@latticexyz/phaserx";
 import { Sprites, Assets, Maps, Scenes, TILE_HEIGHT, TILE_WIDTH } from "./constants";
-import {
-  Tileset as OverworldTileset,
-  TileAnimations as OverworldTileAnimations,
-} from "../phaser/assets/tilesets/overworldTileset";
-import overworldTileset from "./assets/tilesets/overworld-tileset.png";
-import mountainTileset from "./assets/tilesets/mountain-tileset.png";
+import urizen from "./assets/tilesets/urizen.png";
+import { Tileset } from "./assets/tilesets/urizenTileset";
 const ANIMATION_INTERVAL = 200;
 
 export const phaserConfig = {
   sceneConfig: {
     [Scenes.Main]: defineSceneConfig({
       assets: {
-        [Assets.OverworldTileset]: {
+        [Assets.UrizenTileset]: {
           type: AssetType.SpriteSheet,
-          key: Assets.OverworldTileset,
-          path: overworldTileset,
+          key: Assets.UrizenTileset,
+          path: urizen,
           options: {
             frameWidth: TILE_WIDTH,
             frameHeight: TILE_HEIGHT,
           }
-        },
-        [Assets.MainAtlas]: {
-          type: AssetType.MultiAtlas,
-          key: Assets.MainAtlas,
-          path: "/atlases/sprites/atlas.json",
-          options: {
-            imagePath: "/atlases/sprites/",
-          },
         },
       },
       maps: {
@@ -41,9 +29,9 @@ export const phaserConfig = {
           chunkSize: TILE_WIDTH * 64, // tile size * tile amount
           tileWidth: TILE_WIDTH,
           tileHeight: TILE_HEIGHT,
-          backgroundTile: [OverworldTileset.Tron],
+          backgroundTile: [Tileset.Ground2],
           animationInterval: ANIMATION_INTERVAL,
-          tileAnimations: OverworldTileAnimations,
+          tileAnimations: {},
           layers: {
             layers: {
               Background: { tilesets: ["Default"], hasHueTintShader: true },
@@ -55,21 +43,21 @@ export const phaserConfig = {
       },
       sprites: {
         [Sprites.Wall]: {
-          assetKey: Assets.OverworldTileset,
-          frame: OverworldTileset.Brick1,
+          assetKey: Assets.UrizenTileset,
+          frame: Tileset.StoneWall1,
         },
         [Sprites.Hero]: {
-          assetKey: Assets.MainAtlas,
-          frame: "sprites/warriors/hero.png",
+          assetKey: Assets.UrizenTileset,
+          frame: Tileset.Hero1,
         },
-        [Sprites.Donkey]: {
-          assetKey: Assets.MainAtlas,
-          frame: "sprites/workers/donkey.png",
+        [Sprites.Enemy]: {
+          assetKey: Assets.UrizenTileset,
+          frame: Tileset.Enemy1,
         },
       },
       animations: [],
       tilesets: {
-        Default: { assetKey: Assets.OverworldTileset, tileWidth: TILE_WIDTH, tileHeight: TILE_HEIGHT },
+        Default: { assetKey: Assets.UrizenTileset, tileWidth: TILE_WIDTH, tileHeight: TILE_HEIGHT },
       },
     }),
   },

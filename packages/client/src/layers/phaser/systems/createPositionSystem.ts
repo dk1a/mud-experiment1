@@ -1,17 +1,15 @@
 import { tileCoordToPixelCoord } from "@latticexyz/phaserx";
-import { defineComponentSystem, defineRxSystem, defineSystem, defineUpdateSystem, getComponentValue, Has } from "@latticexyz/recs";
-import { combineLatest, concat } from "rxjs";
+import { defineComponentSystem, defineRxSystem, defineSystem, EntityID, EntityIndex, getComponentValue, Has, hasComponent } from "@latticexyz/recs";
+import { combineLatest } from "rxjs";
 import { NetworkLayer } from "../../network";
-import { Tileset } from "../assets/tilesets/overworldTileset";
-import { Assets, Sprites } from "../constants";
-//import { Assets, Sprites } from "../constants";
+import { Sprites, TILE_WIDTH } from "../constants";
 import { PhaserLayer } from "../types";
 
 export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer) {
   const {
     world,
-    components: { Position, Armor },
-    api: { getArenaEntity }
+    components: { Position, Health },
+    api: { getArenaEntity, getPlayerEntity }
   } = network;
 
   const {
@@ -27,8 +25,9 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
   } = phaser;
 
   // show objects with position
-  defineSystem(world, [Has(Position), Has(Armor)], (update) => {
-    const position = getComponentValue(Position, update.entity);
+  defineRxSystem(world, combineLatest([Position.update$, Health.update$]), ([update,]) => {
+    const entity = update.entity as EntityIndex
+    const position = getComponentValue(Position, entity);
     if (!position) return;
 
     // only display positions for the selected arena
@@ -38,16 +37,20 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     const { x, y } = tileCoordToPixelCoord(position, tileWidth, tileHeight);
 
     const sprite = (() => {
-      // TODO using armor to identify walls is kinda dumb, especially since you might wana make them non-attackable
-      const armor = getComponentValue(Armor, update.entity)?.value ?? 0
-      if (armor > 1e12) {
+      if (entity === getPlayerEntity()) {
+        return config.sprites[Sprites.Hero];
+      }
+
+      // TODO have a component to differentiate them if things other than walls have no health
+      const isWall = !hasComponent(Health, entity)
+      if (isWall) {
         return config.sprites[Sprites.Wall];
       } else {
-        return config.sprites[Sprites.Hero];
+        return config.sprites[Sprites.Enemy];
       }
     })()
 
-    const object = objectPool.get(update.entity, "Sprite");
+    const object = objectPool.get(entity, "Sprite");
     object.setComponent({
       id: Position.id,
       once: (gameObject) => {
@@ -69,9 +72,10 @@ export function createPositionSystem(network: NetworkLayer, phaser: PhaserLayer)
     if (prevPosition?.layer !== arenaEntity) return;
 
     // remove destroyed objects
-    console.log('removed', update.entity)
-    const object = objectPool.get(update.entity, "Sprite");
-    object.removeComponent(Position.id, true);
-    object.despawn();
+    const object = objectPool.get(update.entity, "Existing");
+    if (object) {
+      object.removeComponent(Position.id, true);
+      object.despawn();
+    }
   });
 }

@@ -2,10 +2,10 @@
 
 pragma solidity >=0.8.0;
 
-import { Uint256Component } from "std-contracts/components/Uint256Component.sol";
+import { Uint32BareComponent } from "std-contracts/components/Uint32BareComponent.sol";
 
 uint256 constant ID = uint256(keccak256("component.WinCount"));
 
-contract WinCountComponent is Uint256Component {
-  constructor(address world) Uint256Component(world, ID) {}
+contract WinCountComponent is Uint32BareComponent {
+  constructor(address world) Uint32BareComponent(world, ID) {}
 }

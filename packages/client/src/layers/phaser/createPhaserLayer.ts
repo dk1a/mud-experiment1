@@ -4,6 +4,7 @@ import { phaserConfig } from "./config";
 import { NetworkLayer } from "../network";
 import { createInputSystem } from "./systems/createInputSystem";
 import { createPositionSystem } from "./systems/createPositionSystem";
+import { createHealthBarSystem } from "./systems/createHealthBarSystem";
 
 /**
  * The Phaser layer is responsible for rendering game objects to the screen.
@@ -33,6 +34,7 @@ export async function createPhaserLayer(network: NetworkLayer) {
   // --- SYSTEMS --------------------------------------------------------------------
   createInputSystem(network, context)
   createPositionSystem(network, context)
+  createHealthBarSystem(network, context)
 
   return context;
 }

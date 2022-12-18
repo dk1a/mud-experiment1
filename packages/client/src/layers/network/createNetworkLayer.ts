@@ -1,6 +1,6 @@
 import { createWorld, EntityID, getComponentValue, Has, HasValue, runQuery } from "@latticexyz/recs";
 import { setupDevSystems } from "./setup";
-import { createActionSystem, defineCoordComponent, defineNumberComponent, setupMUDNetwork } from "@latticexyz/std-client";
+import { createActionSystem, defineNumberComponent, setupMUDNetwork } from "@latticexyz/std-client";
 import { SystemTypes } from "contracts/types/SystemTypes";
 import { SystemAbis } from "contracts/types/SystemAbis.mjs";
 import { GameConfig, getNetworkConfig } from "./config";
@@ -96,15 +96,24 @@ export async function createNetworkLayer(config: GameConfig) {
   // --- API ------------------------------------------------------------------------
   function move(toPosition: Coord) {
     const arenaEntity = getArenaEntity();
-    if (!arenaEntity) {
-      console.error("[Network:move] arenaEntity is undefined");
-      return;
-    }
+    if (!arenaEntity) return console.error("arenaEntity is undefined");
     systems["system.Movement"].executeTyped(arenaEntity, toPosition, {gasLimit: 10000000});
   }
 
   function joinQueue() {
     systems["system.ArenaInit"].executeTyped();
+  }
+
+  function upgradeArmor() {
+    const arenaEntity = getArenaEntity();
+    if (!arenaEntity) return console.error("arenaEntity is undefined");
+    systems["system.Upgrade"].upgradeArmor(arenaEntity);
+  }
+
+  function upgradeDamage() {
+    const arenaEntity = getArenaEntity();
+    if (!arenaEntity) return console.error("arenaEntity is undefined");
+    systems["system.Upgrade"].upgradeDamage(arenaEntity);
   }
 
   function getPlayerEntity() {
@@ -133,7 +142,7 @@ export async function createNetworkLayer(config: GameConfig) {
     startSync,
     network,
     actions,
-    api: { move, joinQueue, getPlayerEntity, getArenaEntity },
+    api: { move, joinQueue, upgradeArmor, upgradeDamage, getPlayerEntity, getArenaEntity },
     dev: setupDevSystems(world, encoders, systems),
   };
 
