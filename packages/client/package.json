@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "private": "true",
   "license": "MIT",
   "scripts": {
@@ -22,14 +22,13 @@
   "dependencies": {
     "@ethersproject/providers": "^5.7.0",
     "@improbable-eng/grpc-web": "^0.15.0",
-    "@latticexyz/ecs-browser": "^1.31.3",
+    "@latticexyz/ecs-browser": "1.31.3",
     "@latticexyz/network": "^1.31.3",
-    "@latticexyz/phaserx": "^1.31.3",
+    "@latticexyz/phaserx": "1.31.3",
     "@latticexyz/recs": "^1.31.3",
-    "@latticexyz/services": "^1.31.3",
-    "@latticexyz/solecs": "^1.31.3",
+    "@latticexyz/services": "1.31.3",
+    "@latticexyz/solecs": "1.31.3",
     "@latticexyz/std-client": "^1.31.3",
-    "@latticexyz/std-contracts": "^1.31.3",
     "@latticexyz/utils": "^1.31.3",
     "@protobuf-ts/grpcweb-transport": "^2.8.1",
     "@protobuf-ts/runtime": "^2.8.1",
